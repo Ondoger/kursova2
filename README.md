@@ -84,7 +84,14 @@ https://твій-домен/auth/callback
 `GITHUB_CLIENT_SECRET` не потрапляв у браузер. Ручний вхід по username + PAT залишений
 як fallback для локального запуску без serverless.
 
-Для локального тесту повного OAuth-flow використовуй Vercel CLI:
+Для локального тесту повного OAuth-flow тепер достатньо звичайного Vite dev-сервера:
+
+```bash
+npm run dev
+```
+
+Vite у dev-режимі піднімає локальний `/api/github/oauth` middleware з твого `.env`.
+Також можна використовувати Vercel CLI:
 
 ```bash
 npx vercel dev

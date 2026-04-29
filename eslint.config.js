@@ -26,7 +26,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['api/**/*.js'],
+    files: ['api/**/*.js', 'vite.config.js'],
     extends: [
       js.configs.recommended,
     ],

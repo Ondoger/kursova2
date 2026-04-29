@@ -111,7 +111,7 @@ export async function completeGitHubOAuth({ code, state }) {
         data = null;
     }
     if (!response.ok) {
-        throw new Error(data?.error ?? 'Не вдалось завершити GitHub OAuth.');
+        throw new Error(data?.error ?? `Не вдалось завершити GitHub OAuth. API status: ${response.status}.`);
     }
     if (!data?.access_token) {
         throw new Error('GitHub не повернув access token.');
