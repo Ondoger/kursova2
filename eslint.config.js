@@ -8,6 +8,7 @@ export default defineConfig([
   globalIgnores(['dist']),
   {
     files: ['**/*.{js,jsx}'],
+    ignores: ['api/**'],
     extends: [
       js.configs.recommended,
       reactHooks.configs.flat.recommended,
@@ -22,6 +23,20 @@ export default defineConfig([
         },
       },
       globals: globals.browser,
+    },
+  },
+  {
+    files: ['api/**/*.js'],
+    extends: [
+      js.configs.recommended,
+    ],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+        fetch: 'readonly',
+      },
     },
   },
 ])

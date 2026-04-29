@@ -24,7 +24,7 @@ export function AchievementCard({ achievement, unlocked, progress, index = 0 }) 
                 boxShadow: `0 0 16px ${colors.ring}`,
             }
             : { background: 'rgba(255,255,255,0.04)' }}>
-          {unlocked ? achievement.icon : ''}
+          {achievement.icon && (<img src={achievement.icon} alt={achievement.title} className={`w-full h-full rounded-lg object-cover ${unlocked ? '' : 'opacity-60'}`}/>)}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-1">

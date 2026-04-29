@@ -6,18 +6,15 @@ import { ParticleBackground } from '../components/UI/ParticleBackground';
 import { FloatingCode } from '../components/UI/FloatingCode';
 import { NeonButton } from '../components/UI/NeonButton';
 import { useStore } from '../store/useStore';
-import { isGitHubOAuthConfigured, pollGitHubAccessToken, requestGitHubDeviceCode, } from '../utils/githubAuth';
+import { beginGitHubOAuth, isGitHubOAuthConfigured } from '../utils/githubAuth';
 export function Landing() {
     const [username, setUsername] = useState('');
     const [token, setToken] = useState('');
     const [showAdvanced, setShowAdvanced] = useState(false);
-    const [oauthLoading, setOauthLoading] = useState(false);
     const [authError, setAuthError] = useState(null);
-    const [deviceCode, setDeviceCode] = useState(null);
     const savedCharacterName = useStore((s) => s.characterName);
     const [characterName, setCharacterNameDraft] = useState(savedCharacterName);
     const connect = useStore((s) => s.connect);
-    const connectWithGitHub = useStore((s) => s.connectWithGitHub);
     const setCharacterName = useStore((s) => s.setCharacterName);
     const loading = useStore((s) => s.loading);
     const error = useStore((s) => s.error);
@@ -38,22 +35,12 @@ export function Landing() {
     };
     const handleGitHubSignIn = async () => {
         setAuthError(null);
-        setDeviceCode(null);
-        setOauthLoading(true);
         setCharacterName(characterName);
         try {
-            const nextDeviceCode = await requestGitHubDeviceCode();
-            setDeviceCode(nextDeviceCode);
-            window.open(nextDeviceCode.verification_uri, '_blank', 'noopener,noreferrer');
-            const accessToken = await pollGitHubAccessToken(nextDeviceCode);
-            await connectWithGitHub(accessToken);
-            navigate('/dashboard');
+            await beginGitHubOAuth({ characterName });
         }
         catch (e) {
             setAuthError(e instanceof Error ? e.message : 'GitHub OAuth помилка');
-        }
-        finally {
-            setOauthLoading(false);
         }
     };
     return (<div className="relative min-h-screen overflow-hidden">
@@ -95,26 +82,14 @@ export function Landing() {
               <input value={characterName} onChange={(e) => setCharacterNameDraft(e.target.value)} placeholder="Ім'я персонажа" className="w-full pl-10 pr-4 py-4 rounded-xl bg-white/[0.04] border border-white/10 focus:border-neon-pink/60 focus:bg-white/[0.06] focus:outline-none focus:ring-4 focus:ring-neon-pink/10 transition-all font-medium placeholder:text-white/30"/>
             </div>
 
-            <NeonButton type="button" onClick={handleGitHubSignIn} disabled={loading || oauthLoading || !oauthConfigured} variant="primary" className="w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed">
-              {oauthLoading ? 'Очікую підтвердження GitHub...' : 'Увійти через GitHub'}
+            <NeonButton type="button" onClick={handleGitHubSignIn} disabled={loading || !oauthConfigured} variant="primary" className="w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+              Увійти через GitHub
             </NeonButton>
 
             {!oauthConfigured && (<div className="text-xs text-white/45 bg-white/[0.04] border border-white/10 px-3 py-2 rounded-lg leading-relaxed">
-                Для GitHub OAuth додай <span className="font-mono">VITE_GITHUB_CLIENT_ID</span> у .env.
-                Нижче лишив ручне підключення по username як fallback.
+                Для GitHub OAuth додай <span className="font-mono">VITE_GITHUB_CLIENT_ID</span> у .env і <span className="font-mono">GITHUB_CLIENT_SECRET</span> на сервері.
+                Нижче лишилось ручне підключення по username як fallback.
               </div>)}
-
-            {deviceCode && (<motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="text-sm text-white/70 bg-neon-cyan/5 border border-neon-cyan/30 px-3 py-3 rounded-lg">
-                <div className="text-xs uppercase tracking-widest text-white/40 mb-1">
-                  GitHub код
-                </div>
-                <div className="font-display text-2xl font-black text-gradient tracking-widest">
-                  {deviceCode.user_code}
-                </div>
-                <a href={deviceCode.verification_uri} target="_blank" rel="noreferrer" className="text-xs text-neon-cyan hover:text-white transition-colors">
-                  Відкрити сторінку підтвердження
-                </a>
-              </motion.div>)}
 
             <div className="relative flex items-center py-1">
               <div className="h-px flex-1 bg-white/10"/>

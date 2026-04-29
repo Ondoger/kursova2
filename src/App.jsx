@@ -4,6 +4,7 @@ import { Landing } from './pages/Landing';
 import { Dashboard } from './pages/Dashboard';
 import { CharacterPage } from './pages/Character';
 import { AchievementsPage } from './pages/Achievements';
+import { AuthCallback } from './pages/AuthCallback';
 import { Navbar } from './components/UI/Navbar';
 const pageVariants = {
     initial: { opacity: 0, y: 16 },
@@ -32,6 +33,9 @@ function App() {
               </PageWrap>}/>
           <Route path="/achievements" element={<PageWrap>
                 <AchievementsPage />
+              </PageWrap>}/>
+          <Route path="/auth/callback" element={<PageWrap>
+                <AuthCallback />
               </PageWrap>}/>
         </Routes>
       </AnimatePresence>

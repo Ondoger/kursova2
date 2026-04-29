@@ -124,7 +124,7 @@ export function Dashboard() {
               {evals.map((e) => (<div key={e.achievement.id} title={`${e.achievement.title}  ${e.achievement.description}`} className={`aspect-square rounded-md flex items-center justify-center text-sm transition-all ${e.unlocked
                 ? 'bg-neon-cyan/15 border border-neon-cyan/40 shadow-[0_0_10px_rgba(0,255,255,0.4)]'
                 : 'bg-white/5 border border-white/5 grayscale opacity-50'}`}>
-                  {e.unlocked ? e.achievement.icon : ''}
+                  {e.achievement.icon && (<img src={e.achievement.icon} alt={e.achievement.title} className={`w-full h-full rounded-[4px] object-cover ${e.unlocked ? '' : 'opacity-50'}`}/>)}
                 </div>))}
             </div>
             <button onClick={() => navigate('/achievements')} className="text-xs text-neon-cyan hover:text-white mt-3 inline-flex items-center gap-1 transition-colors">

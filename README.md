@@ -10,8 +10,8 @@
 ##  Опис проєкту
 
 **CodeWaifu**  це SPA (single-page application), що демонструє можливості сучасного фронтенду:
-React, JavaScript, Three.js і Tailwind CSS. Користувач вводить свій GitHub-нік (без OAuth,
-лише публічні дані), а застосунок:
+React, JavaScript, Three.js і Tailwind CSS. Користувач входить через GitHub OAuth
+або вводить GitHub-нік вручну, а застосунок:
 
 1. Витягує статистику через **GitHub REST API v3**
 2. Розраховує **XP / Level (1100)** на основі коммітів, стріку, репозиторіїв, зірок
@@ -42,7 +42,7 @@ React, JavaScript, Three.js і Tailwind CSS. Користувач вводить
 | Графіки | **Recharts** (donut, area-chart) |
 | State | **Zustand** з persist-middleware |
 | Routing | **React Router 7** |
-| API | **GitHub REST API v3** (без бекенду) |
+| API | **GitHub REST API v3** + serverless OAuth callback |
 
 ---
 
@@ -62,15 +62,35 @@ npm run build
 npm run preview
 ```
 
-###  Конфігурація токена (опціонально)
+###  GitHub OAuth
 
-GitHub API має ліміт **60 запитів/годину** для неавторизованих запитів. Якщо ти впираєшся
-в ліміт  введи свій *Personal Access Token* (PAT) у формі на лендінгу.
-Токен використовується **тільки в браузері** і ніколи не йде на бекенд.
+Основний вхід працює через GitHub OAuth redirect-flow. Скопіюй `.env.example` у `.env`
+і заповни значення зі своєї GitHub OAuth App:
 
-Створити токен:
-[github.com/settings/tokens](https://github.com/settings/tokens) (достатньо `public_repo` scope або
-взагалі без скоупів  ми читаємо лише публічні дані).
+```bash
+VITE_GITHUB_CLIENT_ID="GitHub OAuth App Client ID"
+GITHUB_CLIENT_ID="той самий Client ID для serverless-функції"
+GITHUB_CLIENT_SECRET="GitHub OAuth App Client Secret"
+```
+
+У GitHub OAuth App додай callback URL:
+
+```text
+http://localhost:5173/auth/callback
+https://твій-домен/auth/callback
+```
+
+Обмін OAuth code на access token виконує serverless endpoint `api/github/oauth.js`, щоб
+`GITHUB_CLIENT_SECRET` не потрапляв у браузер. Ручний вхід по username + PAT залишений
+як fallback для локального запуску без serverless.
+
+Для локального тесту повного OAuth-flow використовуй Vercel CLI:
+
+```bash
+npx vercel dev
+```
+
+На Vercel ці самі три змінні треба додати у Project Settings -> Environment Variables.
 
 ---
 
@@ -100,6 +120,7 @@ src/
         Navbar.jsx
  pages/
     Landing.jsx             # /        Підключення GitHub
+    AuthCallback.jsx        # /auth/callback OAuth callback
     Dashboard.jsx           # /dashboard Стати + персонаж
     Character.jsx           # /character Повноекранний 3D-перегляд
     Achievements.jsx        # /achievements Зал слави
@@ -114,7 +135,11 @@ src/
     achievements.js        # 16 ачівментів з прогрес-логікою
  three/
     character.jsx          # Процедурний персонаж
- ```
+public/
+ achievements/             # SVG-зображення для ачівок
+api/
+ github/oauth.js           # Serverless OAuth token exchange
+```
 
 ---
 
